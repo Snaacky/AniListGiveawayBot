@@ -9,13 +9,13 @@ from loguru import logger
 class AniListGiveaway:
     def __init__(self, args):
         self.args = args
-        logger.info(f"Getting contestents from '{self.args.user}' followers list")
-        self.contestents = self.get_contestents()
-        logger.info(f"Found {len(self.contestents)} contestents")
+        logger.info(f"Getting contestants from '{self.args.user}' followers list")
+        self.contestants = self.get_contestants()
+        logger.info(f"Found {len(self.contestants)} contestants")
         self.winners = self.draw_winners()
         logger.info(f"Winner(s): {', '.join(self.winners)}")
 
-    def get_contestents(self):
+    def get_contestants(self):
         query = """
         query ($page: Int, $userId: Int!) {
             Page(page: $page) {
@@ -32,7 +32,7 @@ class AniListGiveaway:
             }
         }
         """
-        contestents = []
+        contestants = []
         page = 1
         while True:
             variables = {"userId": self.args.user, "page": page}
@@ -69,17 +69,17 @@ class AniListGiveaway:
                 raise SystemExit
 
             for user in r["data"]["Page"]["followers"]:
-                contestents.append(user["name"])
+                contestants.append(user["name"])
 
             if page >= r["data"]["Page"]["pageInfo"]["lastPage"]:
                 break
 
             page += 1
 
-        return contestents
+        return contestants
 
     def draw_winners(self):
-        return random.sample(population=self.contestents, k=self.args.winners)
+        return random.sample(population=self.contestants, k=self.args.winners)
 
 
 if __name__ == "__main__":
@@ -87,7 +87,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "-u",
         "--user",
-        help="The ID of the user to draw contesents from",
+        help="The ID of the user to draw contestants from",
         type=int,
         required=True,
     )
