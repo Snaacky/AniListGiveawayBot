@@ -16,7 +16,7 @@ class AniListGiveaway:
         self.user_id = self.get_user_id()
         self.contestants = self.get_contestants()
         logger.info(f"Found {len(self.contestants)} contestants")
-        logger.info(f"Drawing {self.args.winners} winners")
+        logger.info(f"Drawing {self.args.winners} winner(s)")
         self.winners = self.draw_winners()
         logger.info(f"Winner(s): {', '.join(self.winners)}")
 
@@ -27,7 +27,7 @@ class AniListGiveaway:
 
         Parameters:
             - query (str): The GraphQL API query
-            - variables (dict): A list of variables that will be substituted during the API query.
+            - variables (dict): A list of variables that will be substituted during the API query
         """
         r = requests.post(
             url="https://graphql.anilist.co/",
@@ -85,10 +85,8 @@ class AniListGiveaway:
             Page(page: $page) {
                 pageInfo {
                 total
-                perPage
                 currentPage
                 lastPage
-                hasNextPage
                 }
                 followers(userId: $userId, sort: USERNAME) {
                 name
@@ -137,23 +135,20 @@ class AniListGiveaway:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "-u",
         "--user",
-        help="The username of the user to draw contestants from",
+        help="the username of the user to draw contestants from",
         type=str,
         required=True,
     )
     parser.add_argument(
-        "-w",
         "--winners",
-        help="The amount of winners to be drawn",
+        help="the amount of winner(s) to be drawn",
         type=int,
         required=True,
     )
     parser.add_argument(
-        "-d",
         "--debug",
-        help="Run the script in debug mode, logs extra information to console",
+        help="run the script in debug mode, logs extra information to console",
         action="store_true",
         required=False,
     )
