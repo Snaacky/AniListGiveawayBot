@@ -104,6 +104,7 @@ class AniListGiveaway:
                 logger.error(
                     "Either the AniList user ID specified was invalid or the user has no followers"
                 )
+                raise SystemExit
 
             if json["data"]["Page"]["pageInfo"]["total"] < self.args.winners:
                 logger.error(
