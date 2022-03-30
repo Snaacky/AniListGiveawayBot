@@ -7,7 +7,10 @@ from loguru import logger
 
 
 class AniListGiveaway:
-    def __init__(self, args):
+    def __init__(self, args: argparse.Namespace) -> None:
+        """
+        Function entrypoint for the bot.
+        """
         self.args = args
         logger.info(f"Getting contestants from {self.args.user}'s followers list")
         self.user_id = self.get_user_id()
@@ -17,7 +20,15 @@ class AniListGiveaway:
         self.winners = self.draw_winners()
         logger.info(f"Winner(s): {', '.join(self.winners)}")
 
-    def send_graphql_request(self, query, variables):
+    def send_graphql_request(self, query: str, variables: dict) -> dict:
+        """
+        Generic wrapper for sending GraphQL requests to the API and returning the JSON response.
+        Does some basic error checking and exits if unable to successfully complete the request.
+
+        Parameters:
+            - query (str): The GraphQL API query
+            - variables (dict): A list of variables that will be substituted during the API query.
+        """
         r = requests.post(
             url="https://graphql.anilist.co/",
             json={"query": query, "variables": variables},
@@ -41,7 +52,11 @@ class AniListGiveaway:
 
         return data
 
-    def get_user_id(self):
+    def get_user_id(self) -> int:
+        """
+        Returns the target user's internal ID.
+        The followers page can't be queried via username string so we need the internal user ID for subsquent requests.
+        """
         query = """
         query ($user: String) {
             User(name: $user) {
@@ -52,13 +67,19 @@ class AniListGiveaway:
         """
         variables = {"user": self.args.user}
         json = self.send_graphql_request(query=query, variables=variables)
+
         if self.args.debug:
             logger.debug(
                 f"Retrieved {self.args.user}'s internal ID from GraphQL API: {json['data']['User']['id']}"
             )
+
         return json["data"]["User"]["id"]
 
-    def get_contestants(self):
+    def get_contestants(self) -> list:
+        """
+        Returns a list of all of the user's following the target user.
+        Does some basic error checking to make sure that it's actually able to draw the winners and exits if it can't.
+        """
         query = """
         query ($page: Int, $userId: Int!) {
             Page(page: $page) {
@@ -105,7 +126,11 @@ class AniListGiveaway:
 
         return contestants
 
-    def draw_winners(self):
+    def draw_winners(self) -> list:
+        """
+        Returns a list of winners from the contestants list.
+        Uses .sample() instead of .choices() to avoid duplicate winners.
+        """
         return random.sample(population=self.contestants, k=self.args.winners)
 
 
